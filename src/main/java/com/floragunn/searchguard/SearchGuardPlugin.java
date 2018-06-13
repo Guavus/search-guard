@@ -914,6 +914,10 @@ public final class SearchGuardPlugin extends SearchGuardSSLPlugin implements Clu
         settings.add(Setting.boolSetting(ConfigConstants.SEARCHGUARD_UNSUPPORTED_DISABLE_INTERTRANSPORT_AUTH_INITIALLY, false, Property.NodeScope, Property.Filtered));
         settings.add(Setting.boolSetting(ConfigConstants.SEARCHGUARD_UNSUPPORTED_DISABLE_REST_AUTH_INITIALLY, false, Property.NodeScope, Property.Filtered));
         
+        // Ranger settings
+        settings.add(Setting.simpleString(ConfigConstants.SEARCHGUARD_AUTH_RANGER_APP_ID, Property.NodeScope, Property.Filtered));
+        settings.add(Setting.simpleString(ConfigConstants.SEARCHGUARD_AUTH_RANGER_SERVICE_TYPE, Property.NodeScope, Property.Filtered));
+        settings.add(Setting.boolSetting(ConfigConstants.SEARCHGUARD_AUTH_RANGER_ENABLED, false, Property.NodeScope, Property.Filtered));
         return settings;
     }
 
