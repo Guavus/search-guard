@@ -1,12 +1,10 @@
-# Search Guard - Security for Elasticsearch
+# Guavus Search Guard - Security for Elasticsearch
 
-![Logo](https://raw.githubusercontent.com/floragunncom/sg-assets/master/logo/sg_dlic_small.png) 
+Guavus Search Guard(®) is an Elasticsearch plugin that offers encryption, authentication, and authorization. It supports authentication via Active Directory, LDAP, Kerberos, JSON web tokens and many more, and includes fine grained role-based access control to clusters, indices, documents and fields
 
-Search Guard(®) is an Elasticsearch plugin that offers encryption, authentication, and authorization. It supports authentication via Active Directory, LDAP, Kerberos, JSON web tokens and many more, and includes fine grained role-based access control to clusters, indices, documents and fields. Enjoy true multi tenancy in Kibana, and stay compliant with GDPR, HIPAA, PCI, SOX and ISO by using audit logging. 
+Guavus Search Guard is based on Community Edition of Floragunn Search Guard (check: https://github.com/floragunncom/search-guard)
 
-Search Guard supports **OpenSSL** for maximum performance and security. The complete code is **Open Source**.
-
-## Community Edition
+## Floragunn Search Guard Community Edition
 
 Search Guard offers all basic security features for free. The Community Edition of Search Guard can be used for all projects, including commercial projects, at absolutely no cost. The Community Edition includes:
 
@@ -19,74 +17,51 @@ Search Guard offers all basic security features for free. The Community Edition 
 * User Impersonation
 * Proxy support
 
-Please see [here for a feature comparison](https://floragunn.com/searchguard-license-support/).
+## Guavus Open Source Version
 
-## Enterprise Edition
-
-The Enterprise Edition on Search Guard adds:
+The Guavus Open Source Version on Search Guard adds:
 
 * Active Directory / LDAP
 * Kerberos / SPNEGO
-* JSON web token (JWT)
-* Document-level security
-* Field-level security
-* Audit logging to stay compliant with security compliance regulations
-* True Kibana Multi Tenancy
-* REST management API
-
-Please see [here for a feature comparison](https://floragunn.com/searchguard-license-support/).
-
-If you want to use our enterprise features in production, you need to obtain a license. We offer a [very flexible licensing model](https://floragunn.com/searchguard/searchguard-license-support/), based on productive clusters with an **unlimited number of nodes**. Non-productive systems like Development, Staging or QA are covered by the license at no additional cost.
-
-## Trial license
-
-You can test all enterprise modules for 60 days. A trial license is automatically created when you first install Search Guard. You do not have to install the trial license manually. Just install Search Guard and you're good to go! 
+* Knox JSON web token (JWT) support
+* Apache Ranger integration for authorization and policy management
+* Audit logging through Apache Ranger to stay compliant with security compliance regulations
 
 ## Documentation
 
-Please refer to the [Official documentation](http://docs.search-guard.com) for detailed information on installing and configuring Search Guard.
+Please refer to the [Official documentation](http://docs.search-guard.com) for detailed information
+
+## Building Plugin
+
+To build plugin, please do the following steps:
+1. Clone the github repository, 'git clone https://github.com/Guavus/search-guard'
+2. git checkout release/guavus_es-6.2.2
+2. Run 'mvn clean package -DskipTests -Penterprise'
 
 ## Quick Start
 
 * Install Elasticsearch
 
-* Install the Search Guard plugin for your [Elasticsearch version](https://github.com/floragunncom/search-guard/wiki), e.g.:
+* Install the Search Guard plugin for your Elasticsearch (currently only version 6.2.2 is supported)
 
 ```
-<ES directory>/bin/elasticsearch-plugin install \
-  -b com.floragunn:search-guard-6:6.0.0-17.beta1
+bin/elasticsearch-plugin install -b file:///home/data/search-guard-6-6.2.2-guavus.zip
 ```
 
-* ``cd`` into ``<ES directory>/plugins/search-guard-<version>/tools``
-
-* Execute ``./install_demo_configuration.sh``, ``chmod`` the script first if necessary. This will generate all required TLS certificates and add the Search Guard configuration to your ``elasticsearch.yml`` file. 
-
+* ``cd`` into ``<ES directory>/plugins/search-guard-<version>/sgconfig`` and Edit file sg_config.yml and add configs for ldap, kerberos, JWT
+* Install demo certificates: Download certificates from https://docs.search-guard.com/latest/tls-download-certificates and unzip the certificates.zip file in location <ES Directory>/config
+* Add search guard configs in elasticsearch.yml
+* ``cd`` into ``<ES directory>/plugins/search-guard-<version>`` and Edit file plugin-security.policy
+* ``cd`` into ``<ES directory>/plugins/search-guard-<version>/resources`` and Edit file anger-elasticsearch-security.xml
+* ``cd`` into ``<ES directory>/plugins/search-guard-<version>/resources`` and Edit file ranger-elasticsearch-audit.xml
 * Start Elasticsearch
-
-* Test the installation by visiting ``https://localhost:9200``. When prompted, use admin/admin as username and password. This user has full access to the cluster.
 
 * Display information about the currently logged in user by visiting ``https://localhost:9200/_searchguard/authinfo``.
 
-* Deep dive into all Search Guard features by reading the [Search Guard documentation](http://docs.search-guard.com)
-
-## Config hot reloading
-
-The Search Guard configuration is stored in a dedicated index in Elasticsearch itself. Changes to the configuration are pushed to this index via the [sgadmin command line tool](http://docs.search-guard.com/v6/sgadmin). This will trigger a reload of the configuration on all nodes automatically. This has several advantages over configuration via elasticsearch.yml:
-
-* Configuration is stored in a central place
-* No configuration files on the nodes necessary
-* Configuration changes do not require a restart
-* Configuration changes take effect immediately
-
 ## Support
-* Commercial support available through [floragunn GmbH](https://floragunn.com/searchguard/searchguard-license-support/)
-* Community support available via [google groups](https://groups.google.com/forum/#!forum/search-guard)
-* Follow us and get community support on twitter [@searchguard](https://twitter.com/searchguard)
+
+* Community support for Floragunn Search Guard available via [google groups](https://groups.google.com/forum/#!forum/search-guard)
 
 ## Legal 
 
-Search Guard is a trademark of floragunn GmbH, registered in the U.S. and in other countries.
-
 Elasticsearch, Kibana and Logstash are trademarks of Elasticsearch BV, registered in the U.S. and in other countries. 
-
-floragunn GmbH is not affiliated with Elasticsearch BV.
