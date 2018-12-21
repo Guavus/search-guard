@@ -34,9 +34,9 @@ Please refer to the [Official documentation](http://docs.search-guard.com) for d
 ## Building Plugin
 
 To build plugin, please do the following steps:
-1. Clone the github repository, 'git clone https://github.com/Guavus/search-guard'
-2. git checkout release/guavus_es-6.2.2
-2. Run 'mvn clean package -DskipTests -Penterprise'
+* Clone the github repository, ``git clone https://github.com/Guavus/search-guard``
+* ``git checkout release/guavus_es-6.2.2`` and ``cd search-guard``
+* Run 'mvn clean package -DskipTests -Penterprise'
 
 ## Quick Start
 
@@ -48,8 +48,8 @@ To build plugin, please do the following steps:
 bin/elasticsearch-plugin install -b file:///home/data/search-guard-6-6.2.2-guavus.zip
 ```
 
-* ``cd`` into ``<ES directory>/plugins/search-guard-<version>/sgconfig`` and Edit file sg_config.yml and add configs for ldap, kerberos, JWT
-* Install demo certificates: Download certificates from https://docs.search-guard.com/latest/tls-download-certificates and unzip the certificates.zip file in location <ES Directory>/config
+* ``cd`` into ``<ES directory>/plugins/search-guard-<version>/sgconfig`` and Edit file ``sg_config.yml`` and add configs for LDAP, Kerberos, JWT
+* Install demo certificates: Download certificates from ``https://docs.search-guard.com/latest/tls-download-certificates`` and unzip the certificates.zip file in location ``<ES Directory>/config``
 * Add search guard configs in elasticsearch.yml
 * ``cd`` into ``<ES directory>/plugins/search-guard-<version>`` and Edit file plugin-security.policy
 * ``cd`` into ``<ES directory>/plugins/search-guard-<version>/resources`` and Edit file anger-elasticsearch-security.xml
