@@ -2,7 +2,7 @@
 
 Guavus Search Guard(®) is an Elasticsearch plugin that offers encryption, authentication, and authorization. It supports authentication via Active Directory, LDAP, Kerberos, JSON web tokens and many more, and includes fine grained role-based access control to clusters, indices, documents and fields
 
-Guavus Search Guard is based on Community Edition of Floragunn Search Guard (check: https://github.com/floragunncom/search-guard)
+Guavus Search Guard is based on Community Edition of Floragunn Search Guard (check: https://github.com/floragunncom/search-guard). Currently the plugin is only supported for Elasticsearch version 6.2.2
 
 ## Floragunn Search Guard Community Edition
 
