@@ -22,7 +22,7 @@ print_lines(){
 if [[ ${PUSH_RPM_TO_ARTIFACTORY} == '1' ]]; then
     echo 
     echo "Pushing rpm for ELASTICSEARCH SEARCH GUARD PLUGIN to artifactory"
-    curl --user $ARTIFACTORY_USERNAME:$ARTIFACTORY_PASSWORD -X PUT "$RPM_ARTIFACTORY/$BUILD_NUMBER/" -T ../dist/es-searchguard
+    curl --user $ARTIFACTORY_USERNAME:$ARTIFACTORY_PASSWORD -X PUT "$RPM_ARTIFACTORY/$BUILD_NUMBER/" -T ../dist/es-searchguard/*.rpm
     echo "Published RPM for ELASTICSEARCH SEARCH GUARD PLUGIN successfully"
 
 else
