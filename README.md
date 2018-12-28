@@ -1,8 +1,6 @@
 # Guavus Search Guard - Security for Elasticsearch
 
-Guavus Search Guard(®) is an Elasticsearch plugin that offers encryption, authentication, and authorization. It supports authentication via Active Directory, LDAP, Kerberos, JSON web tokens and many more, and includes fine grained role-based access control to clusters, indices, documents and fields
-
-Guavus Search Guard is based on Community Edition of Floragunn Search Guard (check: https://github.com/floragunncom/search-guard). Currently the plugin is only supported for Elasticsearch version 6.2.2
+Guavus Search Guard(®) is an Elasticsearch plugin that offers encryption, authentication, and authorization. It supports authentication via Active Directory, LDAP, Kerberos, JSON web tokens and many more, and includes fine grained role-based access control to clusters, indices. Guavus Search Guard is based on Community Edition of Floragunn Search Guard (check: https://github.com/floragunncom/search-guard). Currently the plugin is only supported for Elasticsearch version 6.2.2
 
 ## Floragunn Search Guard Community Edition
 
@@ -34,29 +32,100 @@ Please refer to the [Official documentation](http://docs.search-guard.com) for d
 ## Building Plugin
 
 To build plugin, please do the following steps:
-* Clone the github repository, ``git clone https://github.com/Guavus/search-guard``
-* ``git checkout release/guavus_es-6.2.2`` and ``cd search-guard``
-* Run 'mvn clean package -DskipTests -Penterprise'
+1. Clone the github repository, ``git clone https://github.com/Guavus/search-guard``
+2. ``git checkout release/guavus_es-6.2.2`` and ``cd search-guard``
+3. To build plugin zip, run ``make all``
+4. To build plugin rpm, run ``make gather-dist-rpms``
 
 ## Quick Start
 
-* Install Elasticsearch
+1. Install Elasticsearch
 
-* Install the Search Guard plugin for your Elasticsearch (currently only version 6.2.2 is supported)
+2. Install the Search Guard plugin for your Elasticsearch (currently only version 6.2.2 is supported) using command
 
 ```
 bin/elasticsearch-plugin install -b file:///home/data/search-guard-6-6.2.2-guavus.zip
 ```
 
-* ``cd`` into ``<ES directory>/plugins/search-guard-<version>/sgconfig`` and Edit file ``sg_config.yml`` and add configs for LDAP, Kerberos, JWT
-* Install demo certificates: Download certificates from ``https://docs.search-guard.com/latest/tls-download-certificates`` and unzip the certificates.zip file in location ``<ES Directory>/config``
-* Add search guard configs in elasticsearch.yml
-* ``cd`` into ``<ES directory>/plugins/search-guard-<version>`` and Edit file plugin-security.policy
-* ``cd`` into ``<ES directory>/plugins/search-guard-<version>/resources`` and Edit file anger-elasticsearch-security.xml
-* ``cd`` into ``<ES directory>/plugins/search-guard-<version>/resources`` and Edit file ranger-elasticsearch-audit.xml
-* Start Elasticsearch
+3. ``cd <ES directory>/plugins/search-guard-<version>/sgconfig`` and Edit file ``sg_config.yml`` and add configs for LDAP, Kerberos, JWT
+4. Install demo certificates: Download certificates from ``https://docs.search-guard.com/latest/tls-download-certificates`` and unzip the certificates.zip file in location ``<ES Directory>/config``
+5. Add follwing search guard configs in ``elasticsearch.yml``:
+```
+searchguard.ssl.transport.pemcert_filepath: esnode.pem
+searchguard.ssl.transport.pemkey_filepath: esnode-key.pem
+searchguard.ssl.transport.pemtrustedcas_filepath: root-ca.pem
+searchguard.ssl.transport.enforce_hostname_verification: false
+searchguard.ssl.http.enabled: false
+searchguard.ssl.http.pemcert_filepath: esnode.pem
+searchguard.ssl.http.pemkey_filepath: esnode-key.pem
+searchguard.ssl.http.pemtrustedcas_filepath: root-ca.pem
+searchguard.allow_unsafe_democertificates: true
+searchguard.allow_default_init_sgindex: true
+searchguard.authcz.admin_dn:
+  - CN=kirk,OU=client,O=client,L=test, C=de
+searchguard.audit.type: internal_elasticsearch
+searchguard.enable_snapshot_restore_privilege: true
+searchguard.check_snapshot_restore_write_privileges: true
+searchguard.restapi.roles_enabled: ["sg_all_access"]
+discovery.zen.minimum_master_nodes: 1
+node.max_local_storage_nodes: 3
+searchguard.enterprise_modules_enabled: false
+searchguard.kerberos.acceptor_principal: '<Service princiapl for ES eg: HTTP/192.168.154.190@GVS.GGN>'
+searchguard.kerberos.acceptor_keytab_filepath: '<Keytab file for above service princiapl eg. /etc/security/keytabs/es.service.keytab>'
+searchguard.authz.ranger.enabled: <If Ranger is enabled then true else false>
+searchguard.authz.ranger.serviceType: 'elasticsearch'
+searchguard.authz.ranger.appId: '<An App id for thi ES instance eg: my_elasticsearch. This AppID will be used in configuring plugin-security.policy file>'
+```
 
-* Display information about the currently logged in user by visiting ``https://localhost:9200/_searchguard/authinfo``.
+6. ``cd <ES directory>/plugins/search-guard-<version>`` and update following lines in file ``plugin-security.policy``:
+```
+  permission java.io.FilePermission "/etc/ranger/elasticsearch/policycache/<appId>_<serviceName>.json","read,write";
+  permission java.io.FilePermission "/etc/ranger/elasticsearch/policycache/<appId>_<serviceName>.json","read,write";
+```
+
+7. Copy ``resources`` folder from rpm install path/github to plugin directory using command ``cp -r /opt/guavus/es-searchguard/resources <ES directory>/plugins/search-guard-<version>/.``
+8. ``cd <ES directory>/plugins/search-guard-<version>/resources``, edit file ranger-elasticsearch-security.xml and update following properties:
+```
+        <property>
+                <name>ranger.plugin.elasticsearch.service.name</name>
+                <value>mycluster_es</value>
+                <description>
+                        Name of the Ranger service containing policies for this YARN instance
+                </description>
+        </property>
+        <property>
+                <name>ranger.plugin.elasticsearch.policy.rest.url</name>
+                <value>http://<IP>:6080</value>
+                <description>
+                        URL to Ranger Admin
+                </description>
+        </property>
+```
+
+9. ``cd <ES directory>/plugins/search-guard-<version>/resources``, edit file ranger-elasticsearch-audit.xml for appropriate audit log destination, typically solr with following properties:
+```
+       <property>
+                <name>xasecure.audit.destination.solr</name>
+                <value>false</value>
+        </property>
+
+        <property>
+                <name>xasecure.audit.destination.solr.urls</name>
+                <value>NONE</value>
+        </property>
+
+        <property>
+                <name>xasecure.audit.destination.solr.zookeepers</name>
+                <value></value>
+        </property>
+
+        <property>
+                <name>xasecure.audit.destination.solr.collection</name>
+                <value>NONE</value>
+        </property>
+```
+
+10. Start Elasticsearch
 
 ## Support
 

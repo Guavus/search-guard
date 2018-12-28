@@ -24,8 +24,10 @@ fi
     #cleanup
  rm -rf ${TEMP_PACKAGE_DIR}/*
  mkdir -p ${TEMP_PACKAGE_DIR}/${RPM_BASE_PATH}
+ mkdir -p ${TEMP_PACKAGE_DIR}/${RPM_BASE_PATH}/resources
  RPM_NAME="guavus-es-searchguard-plugin"
  cp -r ../target/releases/* ${TEMP_PACKAGE_DIR}/${RPM_BASE_PATH}
+ cp -r ../Ranger/resources/* ${TEMP_PACKAGE_DIR}/${RPM_BASE_PATH}/resources
  fpm -f -s dir -t rpm --rpm-os linux -v ${VERSION} --iteration ${DATE}_${BUILD_NUMBER} --chdir $TEMP_PACKAGE_DIR -p $DIST_DIR_PLUGIN -n $RPM_NAME .
  echo "###### END: RPM CREATION FOR ELASTICSEARCH SEARCH GUARD PLUGIN ######"
 
