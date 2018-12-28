@@ -189,7 +189,7 @@ searchguard.authz.ranger.appId: '<An App id for thi ES instance eg: my_elasticse
 12. Start Elasticsearch on all nodes
 
 
-**NOTE: Step 3 to 11 has to be done on all ES nodes **
+**NOTE: Step 3 to 11 has to be done on all ES nodes**
 
 ## Support
 
