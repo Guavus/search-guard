@@ -47,7 +47,62 @@ To build plugin, please do the following steps:
 bin/elasticsearch-plugin install -b file:///home/data/search-guard-6-6.2.2-guavus.zip
 ```
 
-3. ``cd <ES directory>/plugins/search-guard-<version>/sgconfig`` and Edit file ``sg_config.yml`` and add configs for LDAP, Kerberos, JWT
+3. ``cd <ES directory>/plugins/search-guard-<version>/sgconfig`` and Edit file ``sg_config.yml`` and update configs for LDAP, Kerberos, JWT
+   - For Kerberos, you can enable/disable Kerberos authentication in section
+```
+      kerberos_auth_domain:
+        http_enabled: <true if enabled else false>
+```
+
+   - For JWT authentication, if enabled update JWT signing public key:
+```
+      jwt_auth_domain:
+        http_enabled: <true if enabled else false>
+        transport_enabled: false
+        order: 0
+        http_authenticator:
+          type: jwt
+          challenge: false
+          config:
+            signing_key: "<Knox Public key eg: MIICSzCCAbSgAwIBAgIIMjJbTiPEbVAwDQYJKoZIhvcNAQEFBQAwaDELMAkGA1UE\nBhMCVVMxDTALBgNVBAgTBFRlc3QxDTALBgNVBAcTBFRlc3QxDzANBgNVBAoTBkhh\nZG9vcDENMAsGA1UECxMEVGVzdDEbMBkGA1UEAxMScmFqYXQtMi5ndWF2dXMuY29t\nMB4XDTE4MDQxMDEwMDI0NloXDTE5MDQxMDEwMDI0NlowaDELMAkGA1UEBhMCVVMx\nDTALBgNVBAgTBFRlc3QxDTALBgNVBAcTBFRlc3QxDzANBgNVBAoTBkhhZG9vcDEN\nMAsGA1UECxMEVGVzdDEbMBkGA1UEAxMScmFqYXQtMi5ndWF2dXMuY29tMIGfMA0G\nCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDFMvxDUmIgeoXf7ZFvJ5eHhwSwxbKxvCUw\nqqxhpkog6rf5g4roDCN90xjShcqVpAEDd7rOYKQGemgULgiIDCbwJDazFWZMASbr\nVwuPygEgHz3MgP4G4sQ/xzFbdiavxMk6nTeownWKlNVyAubN84xP8C7VGwK5g8qt\nAVgVCP3ilQIDAQABMA0GCSqGSIb3DQEBBQUAA4GBACxYxpDR+mqGrnlwWV7zcswk\nX9/73a+wYZ9iI4WO2I2z9v0udbd6CZU0QfXYaRGVkHWBRujf4qg3DHebTcXvd52p\niyL5j8I1s25pts+ZGrveI/3A4vSv6T57bQgBzC8Im/cQr+q2P3CJFa65uxIxyQJh\nETID+gC+gugOEMJYefu9>"
+
+   - For LDAP, if enabled update LDAP configs
+```
+      ldap:
+        enabled: <true if enabled else false>
+        http_enabled: <true if enabled else false>
+        transport_enabled: false
+        order: 2
+        http_authenticator:
+          type: basic
+          challenge: false
+        authentication_backend:
+          # LDAP authentication backend (authenticate users against a LDAP or Active Directory)
+          type: ldap # NOT FREE FOR COMMERCIAL USE
+          config:
+            # enable ldaps
+            enable_ssl: false
+            # enable start tls, enable_ssl should be false
+            enable_start_tls: false
+            # send client certificate
+            enable_ssl_client_auth: false
+            # verify ldap hostname
+            verify_hostnames: true
+            hosts:
+              - ldap://<LDAP server IP>:389
+            bind_dn: '<DN user to use for LDAP bind and query eg. cn=ldapadm,dc=example,dc=local>'
+            password: '<Bind DN password eg. admin>'
+            userbase: '<Base to search users from eg. uid={0},ou=People,dc=example,dc=local>'
+            usersearch: '<Search filter eg. (objectClass=account)>'
+            # Use this attribute from the user as username (if not set then DN is used)
+            usergroup_attribute: '<LDAP attribute for group identification eg. gidNumber>'
+            groupbase: '<Base to search group names eg. ou=Group,dc=example,dc=local>'
+            groupsearch: '<Group search filter eg. (&(objectClass=posixGroup)(gidNumber={1}))>'
+            groupname_attribute: '<Group name attribute eg. cn>'
+```
+
+NOTE: If Ranger is enabled in ``elasticsearch.yml``, then it is mandatory to enable Kerberos authentication
+
 4. Install demo certificates: Download certificates from ``https://docs.search-guard.com/latest/tls-download-certificates`` and unzip the certificates.zip file in location ``<ES Directory>/config``
 5. Add follwing search guard configs in ``elasticsearch.yml``:
 ```
@@ -84,7 +139,7 @@ searchguard.authz.ranger.appId: '<An App id for thi ES instance eg: my_elasticse
 ```
 
 7. Copy ``resources`` folder from rpm install path/github to plugin directory using command ``cp -r /opt/guavus/es-searchguard/resources <ES directory>/plugins/search-guard-<version>/.``
-8. ``cd <ES directory>/plugins/search-guard-<version>/resources``, edit file ranger-elasticsearch-security.xml and update following properties:
+8. ``cd <ES directory>/plugins/search-guard-<version>/resources``, edit file ``ranger-elasticsearch-security.xml`` and update following properties:
 ```
         <property>
                 <name>ranger.plugin.elasticsearch.service.name</name>
@@ -102,7 +157,7 @@ searchguard.authz.ranger.appId: '<An App id for thi ES instance eg: my_elasticse
         </property>
 ```
 
-9. ``cd <ES directory>/plugins/search-guard-<version>/resources``, edit file ranger-elasticsearch-audit.xml for appropriate audit log destination, typically solr with following properties:
+9. ``cd <ES directory>/plugins/search-guard-<version>/resources``, edit file ``ranger-elasticsearch-audit.xml`` for appropriate audit log destination, typically solr with following properties:
 ```
        <property>
                 <name>xasecure.audit.destination.solr</name>
