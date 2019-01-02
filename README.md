@@ -106,7 +106,7 @@ bin/elasticsearch-plugin install -b file:///opt/guavus/es-searchguard/search-gua
             groupname_attribute: '<Group name attribute eg. cn>'
 ```
 
-NOTE: If Ranger is enabled in ``elasticsearch.yml``, then it is mandatory to enable Kerberos authentication
+NOTE: If Ranger is enabled in ``elasticsearch.yml`` and Kerberos is enabled in HDP stack, then it is mandatory to enable Kerberos authentication
 
 6. Install demo certificates: Download certificates from ``https://docs.search-guard.com/latest/tls-download-certificates`` OR use local path ``/opt/guavus/es-searchguard/certificates.zip``. Unzip the certificates.zip file in location ``<ES Directory>/config``
 7. Add follwing search guard configs in ``elasticsearch.yml``:
