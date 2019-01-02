@@ -28,7 +28,7 @@ pipeline {
    script{
          rpm_push( env.buildType, 'dist', 'ggn-dev-rpms/es-searchguard/' )
    }}}
-
+}
     always {
       reports_alerts('target/checkstyle-result.xml', 'target/surefire-reports/*.xml', 'target/site/cobertura/coverage.xml', 'allure-report/', 'index.html')
       slackalert('jenkins-raf-alerts')
