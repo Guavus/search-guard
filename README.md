@@ -33,7 +33,7 @@ Please refer to the [Official documentation](http://docs.search-guard.com) for d
 
 To build plugin, please do the following steps:
 1. Clone the github repository, ``git clone https://github.com/Guavus/search-guard``
-2. ``git checkout release/guavus_es-6.2.2`` and ``cd search-guard``
+2. ``git checkout release/guavus_es-6.2.2``
 3. To build plugin zip, run ``make all``
 4. To build plugin rpm, run ``make gather-dist-rpms``
 
