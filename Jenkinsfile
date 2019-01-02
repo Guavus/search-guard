@@ -10,7 +10,7 @@ pipeline {
        }
      }
    }
-    stage("Build rpm") {
+    stage("Build") {
      steps {
        echo "Building..."
        sh "make all"
@@ -30,5 +30,8 @@ pipeline {
    }}}
 
  }
-
+    always {
+      reports_alerts('target/checkstyle-result.xml', 'target/surefire-reports/*.xml', 'target/site/cobertura/coverage.xml', 'allure-report/', 'index.html')
+      slackalert('jenkins-raf-alerts')
+}
 }
