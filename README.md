@@ -48,7 +48,7 @@ To build plugin, please do the following steps:
 4. Install the Search Guard plugin for your Elasticsearch (currently only version 6.2.2 is supported) using command
 
 ```
-bin/elasticsearch-plugin install -b file:///home/data/search-guard-6-6.2.2-guavus.zip
+bin/elasticsearch-plugin install -b file:///opt/guavus/es-searchguard/search-guard-6-<version>-guavus.zip
 ```
 
 5. ``cd <ES directory>/plugins/search-guard-<version>/sgconfig`` and Edit file ``sg_config.yml`` and update configs for LDAP, Kerberos, JWT
@@ -108,7 +108,7 @@ bin/elasticsearch-plugin install -b file:///home/data/search-guard-6-6.2.2-guavu
 
 NOTE: If Ranger is enabled in ``elasticsearch.yml``, then it is mandatory to enable Kerberos authentication
 
-6. Install demo certificates: Download certificates from ``https://docs.search-guard.com/latest/tls-download-certificates`` and unzip the certificates.zip file in location ``<ES Directory>/config``
+6. Install demo certificates: Download certificates from ``https://docs.search-guard.com/latest/tls-download-certificates`` OR use local path ``/opt/guavus/es-searchguard/certificates.zip``. Unzip the certificates.zip file in location ``<ES Directory>/config``
 7. Add follwing search guard configs in ``elasticsearch.yml``:
 ```
 searchguard.ssl.transport.pemcert_filepath: esnode.pem
