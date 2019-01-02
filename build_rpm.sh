@@ -2,16 +2,14 @@ set -e
 
 pushd "$(dirname "$0")"
 
-source ../artifactory_mgmt.sh
-
 #TEMP_RPM_DIR=`pwd -P`"/.rpm-dir"
 TEMP_PACKAGE_DIR=`pwd -P`"/.package"    #"${TEMP_RPM_DIR}/package"
 RPM_BASE_PATH="/opt/guavus/es-searchguard/"
-DIST_DIR_PLUGIN="../dist/es-searchguard"
-DIST_DIR_INSTALLER="../dist/installer"
+DIST_DIR_PLUGIN="./dist/es-searchguard"
+DIST_DIR_INSTALLER="./dist/installer"
 
-VERSION=$MAJOR_VER
-DATE=`date +'%Y%m%d'`
+VERSION=$1
+REL=$2
 
 if [ -z "$BUILD_NUMBER" ]
 then
@@ -26,10 +24,10 @@ fi
  mkdir -p ${TEMP_PACKAGE_DIR}/${RPM_BASE_PATH}
  mkdir -p ${TEMP_PACKAGE_DIR}/${RPM_BASE_PATH}/resources
  RPM_NAME="guavus-es-searchguard-plugin"
- cp -r ../target/releases/* ${TEMP_PACKAGE_DIR}/${RPM_BASE_PATH}
- cp -r ../certificates.zip ${TEMP_PACKAGE_DIR}/${RPM_BASE_PATH}
- cp -r ../Ranger/resources/* ${TEMP_PACKAGE_DIR}/${RPM_BASE_PATH}/resources
- fpm -f -s dir -t rpm --rpm-os linux -v ${VERSION} --iteration ${DATE}_${BUILD_NUMBER} --chdir $TEMP_PACKAGE_DIR -p $DIST_DIR_PLUGIN -n $RPM_NAME .
+ cp -r ./target/releases/* ${TEMP_PACKAGE_DIR}/${RPM_BASE_PATH}
+ cp -r ./certificates.zip ${TEMP_PACKAGE_DIR}/${RPM_BASE_PATH}
+ cp -r ./Ranger/resources/* ${TEMP_PACKAGE_DIR}/${RPM_BASE_PATH}/resources
+ fpm -f -s dir -t rpm --rpm-os linux -v ${VERSION} --iteration $REL --chdir $TEMP_PACKAGE_DIR -p $DIST_DIR_PLUGIN -n $RPM_NAME .
  echo "###### END: RPM CREATION FOR ELASTICSEARCH SEARCH GUARD PLUGIN ######"
 
  rm -rf ${TEMP_PACKAGE_DIR}
