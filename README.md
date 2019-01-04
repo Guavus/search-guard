@@ -140,7 +140,7 @@ searchguard.authz.ranger.appId: '<An App id for thi ES instance eg: my_elasticse
 8. ``cd <ES directory>/plugins/search-guard-<version>`` and update following lines in file ``plugin-security.policy``:
 ```
   permission java.io.FilePermission "/etc/ranger/elasticsearch/policycache/<appId>_<serviceName>.json","read,write";
-  permission java.io.FilePermission "/etc/ranger/elasticsearch/policycache/<appId>_<serviceName>.json","read,write";
+  permission java.io.FilePermission "/etc/ranger/elasticsearch/policycache/<appId>_<serviceName>_tag.json","read,write";
 ```
 
 9. Copy ``resources`` folder from rpm install path/github to plugin directory using command ``cp -r /opt/guavus/es-searchguard/resources <ES directory>/plugins/search-guard-<version>/.``

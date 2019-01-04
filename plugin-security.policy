@@ -58,7 +58,7 @@ grant {
   
   permission java.lang.RuntimePermission "accessUserInformation";
   permission java.io.FilePermission "/etc/ranger/elasticsearch/policycache/<appId>_<serviceName>.json","read,write";
-  permission java.io.FilePermission "/etc/ranger/elasticsearch/policycache/<appId>_<serviceName>.json","read,write";
+  permission java.io.FilePermission "/etc/ranger/elasticsearch/policycache/<appId>_<serviceName>_tag.json","read,write";
   permission java.io.FilePermission "/etc/ranger/elasticsearch/policycache","read,write";
   permission javax.security.auth.AuthPermission "getSubject";
   permission java.io.FilePermission "*", "execute";
