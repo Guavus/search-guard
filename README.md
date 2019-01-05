@@ -106,9 +106,8 @@ bin/elasticsearch-plugin install -b file:///opt/guavus/es-searchguard/search-gua
             groupname_attribute: '<Group name attribute eg. cn>'
 ```
 
-NOTE: If Ranger is enabled in ``elasticsearch.yml`` and Kerberos is enabled in HDP stack, then it is mandatory to enable Kerberos authentication
-
 6. Install demo certificates: Download certificates from ``https://docs.search-guard.com/latest/tls-download-certificates`` OR use local path ``/opt/guavus/es-searchguard/certificates.zip``. Unzip the certificates.zip file in location ``<ES Directory>/config``
+
 7. Add follwing search guard configs in ``elasticsearch.yml``:
 ```
 searchguard.ssl.transport.pemcert_filepath: esnode.pem
@@ -127,12 +126,10 @@ searchguard.audit.type: internal_elasticsearch
 searchguard.enable_snapshot_restore_privilege: true
 searchguard.check_snapshot_restore_write_privileges: true
 searchguard.restapi.roles_enabled: ["sg_all_access"]
-discovery.zen.minimum_master_nodes: 1
-node.max_local_storage_nodes: 3
 searchguard.enterprise_modules_enabled: false
 searchguard.kerberos.acceptor_principal: '<Service princiapl for ES eg: HTTP/192.168.154.190@GVS.GGN>'
 searchguard.kerberos.acceptor_keytab_filepath: '<Keytab file for above service princiapl eg. /etc/security/keytabs/es.service.keytab>'
-searchguard.authz.ranger.enabled: <If Ranger is enabled then true else false>
+searchguard.authz.ranger.enabled: <If Ranger is enabled then true else false. Disabling Ranger will disable all authorization>
 searchguard.authz.ranger.serviceType: 'elasticsearch'
 searchguard.authz.ranger.appId: '<An App id for thi ES instance eg: my_elasticsearch. This AppID will be used in configuring plugin-security.policy file>'
 ```
@@ -141,6 +138,7 @@ searchguard.authz.ranger.appId: '<An App id for thi ES instance eg: my_elasticse
 ```
   permission java.io.FilePermission "/etc/ranger/elasticsearch/policycache/<appId>_<serviceName>.json","read,write";
   permission java.io.FilePermission "/etc/ranger/elasticsearch/policycache/<appId>_<serviceName>_tag.json","read,write";
+  permission java.io.FilePermission "<ES keytab filepath eg. /etc/security/keytabs/es.service.keytab>","read";
 ```
 
 9. Copy ``resources`` folder from rpm install path/github to plugin directory using command ``cp -r /opt/guavus/es-searchguard/resources <ES directory>/plugins/search-guard-<version>/.``

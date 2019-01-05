@@ -66,7 +66,7 @@ grant {
   permission javax.security.auth.AuthPermission "createLoginContext.";
   permission javax.security.auth.AuthPermission "createLoginContext.other";
   permission javax.security.auth.AuthPermission "modifyPrincipals";
-  permission java.io.FilePermission "/etc/security/keytabs/<keytab filepath>","read";
+  permission java.io.FilePermission "<ES keytab filepath eg. /etc/security/keytabs/es.service.keytab>","read";
   permission javax.security.auth.PrivateCredentialPermission "javax.security.auth.kerberos.KeyTab * \"*\"","read";
   permission javax.security.auth.PrivateCredentialPermission "javax.security.auth.kerberos.KerberosTicket * \"*\"","read";
   permission javax.security.auth.PrivateCredentialPermission "javax.security.auth.kerberos.KerberosKey * \"*\"","read";
