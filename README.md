@@ -1,6 +1,6 @@
 # Guavus Search Guard - Security for Elasticsearch
 
-Guavus Search Guard(®) is an Elasticsearch plugin that offers encryption, authentication, and authorization. It supports authentication via Active Directory, LDAP, Kerberos, JSON web tokens and many more, and includes fine grained role-based access control to clusters, indices. Guavus Search Guard is based on Community Edition of Floragunn Search Guard (check: https://github.com/floragunncom/search-guard). Currently the plugin is only supported for Elasticsearch version 6.2.2
+Guavus Search Guard is an Elasticsearch plugin that offers encryption, authentication, and authorization. It supports authentication via Active Directory, LDAP, Kerberos, JSON web tokens and many more, and includes fine grained role-based access control to clusters, indices. Guavus Search Guard is based on Community Edition of Floragunn Search Guard (check: https://github.com/floragunncom/search-guard). Currently the plugin is only supported for Elasticsearch version 6.2.2
 
 ## Floragunn Search Guard Community Edition
 
@@ -17,7 +17,7 @@ Search Guard offers all basic security features for free. The Community Edition 
 
 ## Guavus Open Source Version
 
-The Guavus Open Source Version on Search Guard adds:
+The Guavus Open Source Version on Search Guard adds following features to Floragunn Search Guard Community Edition:
 
 * Active Directory / LDAP
 * Kerberos / SPNEGO
@@ -190,9 +190,9 @@ searchguard.authz.ranger.appId: '<An App id for thi ES instance eg: my_elasticse
 **NOTE: Step 3 to 11 has to be done on all ES nodes**
 
 ## Support
+For any issues please send a mail to rajat.goel@guavus.com
 
-* Community support for Floragunn Search Guard available via [google groups](https://groups.google.com/forum/#!forum/search-guard)
-
-## Legal 
-
+## Legal
+Search Guard is a trademark of floragunn GmbH, registered in the U.S. and in other countries.
 Elasticsearch, Kibana and Logstash are trademarks of Elasticsearch BV, registered in the U.S. and in other countries. 
+Guavus is not affiliated with floragunn GmbH or Elasticsearch BV.
