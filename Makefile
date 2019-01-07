@@ -9,7 +9,7 @@ all: \
 	gather-dist-source-jobs 
 		
 gather-dist-rpms: 
-	cd rpm-mgmt; rm -rf .package;  ./build_rpm.sh $(REL_VERSION) 0;  
+	rm -rf .package;  ./build_rpm.sh $(REL_VERSION) 0;  
 
 gather-dist-source-jobs: \
 	build-source \
