@@ -2,7 +2,6 @@ set -e
 
 pushd "$(dirname "$0")"
 
-#TEMP_RPM_DIR=`pwd -P`"/.rpm-dir"
 TEMP_PACKAGE_DIR=`pwd -P`"/.package"    #"${TEMP_RPM_DIR}/package"
 RPM_BASE_PATH="/opt/guavus/es-searchguard/"
 DIST_DIR_PLUGIN="./dist/es-searchguard"
@@ -18,7 +17,7 @@ then
 fi
 
  echo "###### START: RPM CREATION ELASTICSEARCH SEARCH GUARD PLUGIN ######"
- echo -e "# # # # # # # START : Creating RPM package for [${COMPONENT}] # # # # # # #"
+ echo -e "# # # # # # # START : Creating RPM package # # # # # # #"
     #cleanup
  rm -rf ${TEMP_PACKAGE_DIR}/*
  mkdir -p ${TEMP_PACKAGE_DIR}/${RPM_BASE_PATH}
