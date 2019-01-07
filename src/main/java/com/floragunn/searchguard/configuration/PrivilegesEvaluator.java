@@ -824,6 +824,13 @@ public class PrivilegesEvaluator {
                 || (action.startsWith("indices:admin/get"))){
             //Add code for Ranger - Read
             allowAction = checkRangerAuthorization(user, caller, "read", indices, "read");
+
+            // Monitoring stats should be available even if cluster level read permission is present
+            if (!allowAction && (action.startsWith("indices:monitor/stats"))) {
+                Set<String> indices_tmp = new HashSet<String>();
+                indices_tmp.add("_cluster");
+                allowAction = checkRangerAuthorization(user, caller, "read", indices_tmp, "read");
+            }
         } else if (action.startsWith("indices:data/write")
                 || (action.startsWith("indices:data/"))) {
             //Add code for Ranger - Write/Delete
