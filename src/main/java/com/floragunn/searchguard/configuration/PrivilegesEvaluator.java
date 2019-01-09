@@ -826,7 +826,7 @@ public class PrivilegesEvaluator {
             allowAction = checkRangerAuthorization(user, caller, "read", indices, "read");
 
             // Monitoring stats should be available even if cluster level read permission is present
-            if (!allowAction && (action.startsWith("indices:monitor/stats"))) {
+            if (!allowAction && (action.startsWith("indices:monitor/"))) {
                 Set<String> indices_tmp = new HashSet<String>();
                 indices_tmp.add("_cluster");
                 allowAction = checkRangerAuthorization(user, caller, "read", indices_tmp, "read");
