@@ -821,6 +821,7 @@ public class PrivilegesEvaluator {
                 || (action.startsWith("indices:admin/aliases/exists"))
                 || (action.startsWith("indices:admin/aliases/get"))
                 || (action.startsWith("indices:admin/exists"))
+                || (action.startsWith("indices:admin/validate/query"))
                 || (action.startsWith("indices:admin/get"))){
             //Add code for Ranger - Read
             allowAction = checkRangerAuthorization(user, caller, "read", indices, "read");
