@@ -80,13 +80,11 @@ public class HTTPSpnegoAuthenticator implements HTTPAuthenticator {
     public HTTPSpnegoAuthenticator(Settings settings, final Path configPath) {
         super();
         this.settings = settings;
-        Boolean krbDebug = settings.getAsBoolean("krb_debug", false);
-        AccessController.doPrivileged(new PrivilegedAction() {
-            public Object run() {
-                System.setProperty("sun.security.krb5.debug", krbDebug.toString());
-                return null;
-            }
-        });
+    }
+
+    @Override
+    public AuthCredentials extractCredentials(final RestRequest request, ThreadContext context) {
+        log.debug("headers {}", request.getHeaders());
         
         if (spnegoClient == null) {
             // This block can be removed as we are doing initialization from PrivilegesEvaluator
@@ -96,11 +94,6 @@ public class HTTPSpnegoAuthenticator implements HTTPAuthenticator {
         
             initSpnegoClient(svcName, keytabPath, krbConf);
         }
-    }
-
-    @Override
-    public AuthCredentials extractCredentials(final RestRequest request, ThreadContext context) {
-        log.debug("headers {}", request.getHeaders());
         
         String negotiateHeaderValue = null;
         if (!Strings.isNullOrEmpty(request.header("Authorization")))
@@ -261,6 +254,7 @@ public class HTTPSpnegoAuthenticator implements HTTPAuthenticator {
             sm.checkPermission(new SpecialPermission());
         }
         
+
         AccessController.doPrivileged(new PrivilegedAction() {
             public Object run() {
                 System.setProperty("java.security.krb5.conf", krbConf);
