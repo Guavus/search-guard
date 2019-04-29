@@ -55,6 +55,7 @@ public class LdapHelper {
         DirContext ctx = null;
         NamingEnumeration<SearchResult> results = null;
         Set<String> res = new HashSet<String>();
+        Set<String> userGrpRes = new HashSet<String>();
         
         try {
             
@@ -80,48 +81,57 @@ public class LdapHelper {
                 if (gid != null) {
                     if (userGroupAttribute.equalsIgnoreCase("gidNumber")) {
                         grpId = gid.get().toString();
-                        gidFlag = true;
+                        userGrpRes.add(grpId);
                     } else {
-                        String pattern = "(.*)cn=((\\w|\\s)+),(.*)";
-                        Pattern p = Pattern.compile(pattern);
                         for (int i = 0; i < gid.size(); i++) {
                             String grpDnName = gid.get(i).toString();
-                            Matcher matcher = p.matcher(grpDnName);
-                            if (matcher.matches()) {
-                                String grpName = matcher.group(2);
-                                res.add(grpName);
-                            } else {
-                                res.add(grpDnName);
-                            }
-                                
+                            userGrpRes.add(grpDnName);
                         }
                     }
                 }
+                gidFlag = true;
             }
             if (!Strings.isNullOrEmpty(groupBase)) {
                 String grpSearchDn1 = groupBase.replaceAll("\\{0\\}", userToBeSearched);
                 String grpSearchFilterDn1 = groupSearchFilter.replaceAll("\\{0\\}", userToBeSearched);
-                String grpSearchDn = grpSearchDn1;
-                String grpSearchFilterDn = grpSearchFilterDn1;
-                if (gidFlag) {
-                    grpSearchDn = grpSearchDn1.replaceAll("\\{1\\}", grpId);
-                    grpSearchFilterDn = grpSearchFilterDn1.replaceAll("\\{1\\}", grpId);
-                }
                 SearchControls grpCtrls = new SearchControls();
                 String[] attrID1 = { userGroupAttribute, groupNameAttribute };
                 grpCtrls.setReturningAttributes(attrID1);
                 grpCtrls.setSearchScope(SearchControls.SUBTREE_SCOPE);
                 
-                results = ctx.search(grpSearchDn, grpSearchFilterDn, grpCtrls);
-                while (results.hasMore()) {
-                    SearchResult searchResult = (SearchResult) results.next();
-                    Attributes attributes = searchResult.getAttributes();
-                    Attribute grpName = attributes.get(groupNameAttribute);
-                    if (grpName != null) {
-                        res.add(grpName.get().toString());
+                if (gidFlag) {
+                    Iterator<String> iter = userGrpRes.iterator();
+                    while (iter.hasNext()) {
+                        String usrGrpVal = iter.next();
+                        String grpSearchDn = grpSearchDn1.replaceAll("\\{1\\}", usrGrpVal);
+                        String grpSearchFilterDn = grpSearchFilterDn1.replaceAll("\\{1\\}", usrGrpVal);
+                
+                        results = ctx.search(grpSearchDn, grpSearchFilterDn, grpCtrls);
+                        while (results.hasMore()) {
+                            SearchResult searchResult = (SearchResult) results.next();
+                            Attributes attributes = searchResult.getAttributes();
+                            Attribute grpName = attributes.get(groupNameAttribute);
+                            if (grpName != null) {
+                                System.out.println("Found group name = " + grpName.get().toString());
+                                res.add(grpName.get().toString());
+                            }
+                        }
+                    }
+                } else {
+                    results = ctx.search(grpSearchDn1, grpSearchFilterDn1, grpCtrls);
+                    while (results.hasMore()) {
+                        SearchResult searchResult = (SearchResult) results.next();
+                        Attributes attributes = searchResult.getAttributes();
+                        Attribute grpName = attributes.get(groupNameAttribute);
+                        if (grpName != null) {
+                            System.out.println("Found group name = " + grpName.get().toString());
+                            res.add(grpName.get().toString());
+                        }
                     }
                 }
-            } 
+            } else {
+                res = userGrpRes;
+            }
         } catch (Exception e) {
             System.out.println("Error in querying ldap : " + e.getMessage());
         }
@@ -130,9 +140,6 @@ public class LdapHelper {
                 //results.close(); 
             ctx.close(); } catch(Exception ex) { }
         }
-        
         return res;
-        
     }
-
 }

@@ -51,6 +51,7 @@ public class LdapAuthenticationBackend implements AuthenticationBackend {
 
     private final Settings settings;
     private final Logger log = LogManager.getLogger(this.getClass());
+    private final String USERNAME_ATTRIBUTE_DEFAULT = "DN";
 
     public LdapAuthenticationBackend(final Settings settings, java.nio.file.Path configPath) {
         super();
@@ -65,32 +66,59 @@ public class LdapAuthenticationBackend implements AuthenticationBackend {
             return false;
         }
        
-        String userDnTemplate = settings.get("userbase");
+        String userBindDn = settings.get("bind_dn");
+        String userBaseDnTemplate = settings.get("userbase");
         String providerUrl = settings.getAsList("hosts").get(0);
-        log.debug("Config: userbase = " + userDnTemplate + " , host = " + providerUrl);
-        
-        String principalName = userDnTemplate.replaceAll("\\{0\\}", user.getName());
+        String searchStr = settings.get("usersearch");
+        String bindPasswd = settings.get("password");
+        //String username_attribute = settings.get("username_attribute", USERNAME_ATTRIBUTE_DEFAULT);
+        log.debug("Config: userbase = " + userBaseDnTemplate + " , host = " + providerUrl + " , usersearch = " + searchStr);
+
+        String userBaseDn = userBaseDnTemplate.replaceAll("\\{0\\}", user.getName());
+        String userSearchFilterDn = searchStr.replaceAll("\\{0\\}", user.getName());
+
         Properties props = new Properties();
         props.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
         props.put(Context.PROVIDER_URL, providerUrl);
         props.put(Context.SECURITY_AUTHENTICATION, "simple");
-        props.put(Context.SECURITY_PRINCIPAL, principalName);
-        if (user.getCustomAttributesMap().get("password") == null) {
-            return false;
-        }
-        props.put(Context.SECURITY_CREDENTIALS, user.getCustomAttributesMap().get("password"));
-        
+        props.put(Context.SECURITY_PRINCIPAL, userBindDn);
+        props.put(Context.SECURITY_CREDENTIALS, bindPasswd);
         DirContext ctx = null;
-        NamingEnumeration<SearchResult> results = null;
 
         try {
-            ctx = new InitialDirContext(props);
-        } catch (Exception e) {
-            log.error("Error in creating context: " + e.getMessage());
-            if (log.isDebugEnabled()) {
-                e.printStackTrace();
+            
+            SecurityManager sm = System.getSecurityManager();
+            if (sm != null) {
+                sm.checkPermission(new SpecialPermission());
             }
-            return false;
+            ctx = AccessController.doPrivileged(new PrivilegedAction<DirContext>() {
+                public DirContext run() {
+                   
+                    DirContext ctx1 = null;
+                    NamingEnumeration<SearchResult> results = null;
+                    try {
+                        ctx1 = new InitialDirContext(props);
+                        SearchControls controls = new SearchControls();
+                        controls.setSearchScope(SearchControls.SUBTREE_SCOPE);
+                        results = ctx1.search(userBaseDn, userSearchFilterDn, controls);
+                        if (results.hasMore()) {
+                            log.debug("Found user name in LDAP directory");
+                        } else {
+                            log.error("User not found in LDAP directory");
+                            throw new ElasticsearchSecurityException(user.getName() + " not found");
+                        }
+                        return ctx1;
+                        
+                    } catch (Exception e) {
+                        log.error("Error in creating context: " + e.getMessage());
+                        throw new ElasticsearchSecurityException(user.getName() + " not found");
+                    }
+                }
+
+            });
+        } catch (Exception e) {
+            log.error("Error in querying ldap : " + e.getMessage());
+            throw new ElasticsearchSecurityException(user.getName() + " not found");
         }
         finally {
             try { ctx.close(); } catch(Exception ex) { }
@@ -107,26 +135,30 @@ public class LdapAuthenticationBackend implements AuthenticationBackend {
 
         }
 
-        String userDnTemplate = settings.get("userbase");
+        String userBindDn = settings.get("bind_dn");
+        String userBaseDnTemplate = settings.get("userbase");
         String providerUrl = settings.getAsList("hosts").get(0);
         String searchStr = settings.get("usersearch");
-        log.debug("Config: userbase = " + userDnTemplate + " , host = " + providerUrl + " , usersearch = " + searchStr);
+        String bindPasswd = settings.get("password");
+        //String username_attribute = settings.get("username_attribute", USERNAME_ATTRIBUTE_DEFAULT);
+        log.debug("Config: userbase = " + userBaseDnTemplate + " , host = " + providerUrl + " , usersearch = " + searchStr);
 
-        String principalName = userDnTemplate.replaceAll("\\{0\\}", credentials.getUsername());
+        String userBaseDn = userBaseDnTemplate.replaceAll("\\{0\\}", credentials.getUsername());
+        String userSearchFilterDn = searchStr.replaceAll("\\{0\\}", credentials.getUsername());
+
         Properties props = new Properties();
         props.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
         props.put(Context.PROVIDER_URL, providerUrl);
         props.put(Context.SECURITY_AUTHENTICATION, "simple");
-        props.put(Context.SECURITY_PRINCIPAL, principalName);
+        props.put(Context.SECURITY_PRINCIPAL, userBindDn);
+        props.put(Context.SECURITY_CREDENTIALS, bindPasswd);
         
         if(credentials.getPassword() == null || credentials.getPassword().length == 0) {
             throw new ElasticsearchSecurityException("empty passwords not supported");
         }
         
-        String passwd = new String(credentials.getPassword(), StandardCharsets.UTF_8);
-        props.put(Context.SECURITY_CREDENTIALS, passwd);
+        String userPasswd = new String(credentials.getPassword(), StandardCharsets.UTF_8);
         DirContext ctx = null;
-        NamingEnumeration<SearchResult> results = null;
 
         try {
             
@@ -138,38 +170,39 @@ public class LdapAuthenticationBackend implements AuthenticationBackend {
                 public DirContext run() {
                    
                     DirContext ctx1 = null;
+                    NamingEnumeration<SearchResult> results = null;
                     try {
-                    ctx1 = new InitialDirContext(props);
+                        ctx1 = new InitialDirContext(props);
+                        SearchControls controls = new SearchControls();
+                        controls.setSearchScope(SearchControls.SUBTREE_SCOPE);
+                        results = ctx1.search(userBaseDn, userSearchFilterDn, controls);
+                        String userDnVal = null;
+                        if (results.hasMore()) {
+                            log.debug("Found user name in LDAP directory");
+                            SearchResult searchResult = (SearchResult) results.next();
+                            userDnVal= searchResult.getNameInNamespace();
+                        } else {
+                            log.error("User not found in LDAP directory");
+                            throw new ElasticsearchSecurityException(credentials.getUsername() + " not found");
+                        }
+
+                        // Checking user passwd
+                        Properties props1 = new Properties();
+                        props1.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
+                        props1.put(Context.PROVIDER_URL, providerUrl);
+                        props1.put(Context.SECURITY_AUTHENTICATION, "simple");
+                        props1.put(Context.SECURITY_PRINCIPAL, userDnVal);
+                        props1.put(Context.SECURITY_CREDENTIALS, userPasswd);
+                        ctx1 = new InitialDirContext(props1);
+                        return ctx1;
+                        
                     } catch (Exception e) {
                         log.error("Error in creating context: " + e.getMessage());
                         throw new ElasticsearchSecurityException(credentials.getUsername() + " not found");
                     }
-                    return ctx1;
                 }
 
             });
-                
-            /*
-            SearchControls controls = new SearchControls();
-            controls.setSearchScope(SearchControls.SUBTREE_SCOPE);
-            results = ctx.search("", searchStr, controls);
-            while (results.hasMore()) {
-                SearchResult searchResult = (SearchResult) results.next();
-                Attributes attributes = searchResult.getAttributes();
-                Attribute attr = attributes.get("myattr");
-                if (attr != null) {
-                    userGroup = attr.get().toString();
-                }
-            }
-            
-            Attributes attributes = ctx.getAttributes(principalName);
-            NamingEnumeration<String> tmp1 = attributes.getIDs();
-            while (tmp1.hasMoreElements()) {
-                String s = tmp1.nextElement();
-                Attribute attr = attributes.get(s);
-                System.out.println("Attr id = " + s + " , val = " + attr.get());
-            }
-            */
         } catch (Exception e) {
             log.error("Error in querying ldap : " + e.getMessage());
             throw new ElasticsearchSecurityException(credentials.getUsername() + " not found");
